@@ -24,22 +24,63 @@ const toSvgCoords = (p: Point): Point => {
 
 const Grid: React.FC = React.memo(() => {
     const lines = [];
-    // Vertical lines
+    const labels = [];
+    const originSvg = toSvgCoords({ x: 0, y: 0 });
+
+    // Vertical lines and X-axis labels
     for (let i = -CANVAS_WIDTH / 2; i <= CANVAS_WIDTH / 2; i += GRID_SIZE) {
         const p1 = toSvgCoords({ x: i, y: -CANVAS_HEIGHT / 2 });
         const p2 = toSvgCoords({ x: i, y: CANVAS_HEIGHT / 2 });
         lines.push(<line key={`v-${i}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="rgba(255, 255, 255, 0.05)" />);
+
+        if (i !== 0) {
+            labels.push(
+                <text
+                    key={`label-x-${i}`}
+                    x={p1.x}
+                    y={originSvg.y + 15}
+                    fill="rgba(255, 255, 255, 0.4)"
+                    fontSize="12"
+                    fontFamily="monospace"
+                    textAnchor="middle"
+                    style={{ pointerEvents: 'none' }}
+                >
+                    {i}
+                </text>
+            );
+        }
     }
-    // Horizontal lines
+
+    // Horizontal lines and Y-axis labels
     for (let i = -CANVAS_HEIGHT / 2; i <= CANVAS_HEIGHT / 2; i += GRID_SIZE) {
         const p1 = toSvgCoords({ x: -CANVAS_WIDTH / 2, y: i });
         const p2 = toSvgCoords({ x: CANVAS_WIDTH / 2, y: i });
         lines.push(<line key={`h-${i}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="rgba(255, 255, 255, 0.05)" />);
+
+        if (i !== 0) {
+            labels.push(
+                <text
+                    key={`label-y-${i}`}
+                    x={originSvg.x - 10}
+                    y={p1.y}
+                    fill="rgba(255, 255, 255, 0.4)"
+                    fontSize="12"
+                    fontFamily="monospace"
+                    textAnchor="end"
+                    dominantBaseline="middle"
+                    style={{ pointerEvents: 'none' }}
+                >
+                    {i}
+                </text>
+            );
+        }
     }
-    const originX = toSvgCoords({ x: 0, y: 0 });
-    lines.push(<line key="axis-x" x1={0} y1={originX.y} x2={CANVAS_WIDTH} y2={originX.y} stroke="rgba(255, 255, 255, 0.1)" />);
-    lines.push(<line key="axis-y" x1={originX.x} y1={0} x2={originX.x} y2={CANVAS_HEIGHT} stroke="rgba(255, 255, 255, 0.1)" />);
-    return <g>{lines}</g>;
+
+    // Axis lines
+    lines.push(<line key="axis-x" x1={0} y1={originSvg.y} x2={CANVAS_WIDTH} y2={originSvg.y} stroke="rgba(255, 255, 255, 0.1)" />);
+    lines.push(<line key="axis-y" x1={originSvg.x} y1={0} x2={originSvg.x} y2={CANVAS_HEIGHT} stroke="rgba(255, 255, 255, 0.1)" />);
+
+    return <g>{lines}{labels}</g>;
 });
 
 const Stars: React.FC = React.memo(() => {
